@@ -3,6 +3,14 @@ body {
 text-align:center;
 }
 
-#maze {
+#layers {
+	position: relative;
+	margin: 0 auto;
+}
+
+canvas {
 border: 1px solid #000;
+position: absolute;
+left: 50%;
+top: 0;
 }

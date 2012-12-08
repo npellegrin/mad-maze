@@ -26,6 +26,10 @@ var mazePattern = Array(
 	[15,15,15,15,15,15,15,15, 2, 1, 8,10,15,15,15,15,15,15,15,15],
 	[15,15,15,15,15,15,15,15,15, 7, 4,15,15,15,15,15,15,15,15,15]
 );
+var mazeDrawingOffset = {
+	x:-(mazeSize.width*roadSize.width-roadSize.width)/4-roadSize.width/4,
+	y:(mazeSize.height*roadSize.height-roadSize.height)/4-roadSize.height/4
+};
 
 // Character images
 var characterImageFilenames = Array("character_north.png", "character_south.png", "character_east.png", "character_west.png");
@@ -36,7 +40,7 @@ for(var i=0; i<characterImageFilenames.length; i++) {
 }
 
 // Wall images
-var wallImageFilenames = Array("northSouth.png", "westEast.png",		//  0  1
+var wallImageFilenames = Array("northSouth.png", "westEast.png",	//  0  1
 	"northSouthDeadEnd.png", "northSouthDeadStart.png",				//  2  3
 	"westEastDeadEnd.png", "westEastDeadStart.png",					//  4  5
 	"cornerSouthEast.png", "cornerNorthEast.png", 					//  6  7
@@ -51,13 +55,19 @@ for(var i=0; i<wallImageFilenames.length; i++) {
 }
 
 // Game objects
-var character = {x:50, y:70, drawn:false};
+var character = {x:190, y:60};
 
 $(document).ready(function() {
 	// Set canvas size (depending road size and maze size)
-	var canvas = document.getElementById("maze");
-	canvas.setAttribute("width", roadSize.width*(mazeSize.width/2));
-	canvas.setAttribute("height", roadSize.height*(mazeSize.height/2));
+	var mazeCanvas = document.getElementById("maze");
+	mazeCanvas.setAttribute("width", roadSize.width*(mazeSize.width/2));
+	mazeCanvas.setAttribute("height", roadSize.height*(mazeSize.height/2));
+	mazeCanvas.style.marginLeft = (-mazeCanvas.width/2)+"px";
+
+	var characterCanvas = document.getElementById("character");
+	characterCanvas.setAttribute("width", mazeCanvas.width);
+	characterCanvas.setAttribute("height", mazeCanvas.height);
+	characterCanvas.style.marginLeft = (-mazeCanvas.width/2)+"px";
 	
 	// Draw maze !
 	drawMaze();
@@ -65,26 +75,30 @@ $(document).ready(function() {
 
 function drawMaze () {
 	// Get environment
-	var canvas = document.getElementById("maze");
-	var ctx_canvas = canvas.getContext("2d");
+	var mazeCanvas = document.getElementById("maze");
+	var mazeContext = mazeCanvas.getContext("2d");
+	
+	var characterCanvas = document.getElementById("character");
+	var characterContext = characterCanvas.getContext("2d");
 
-	var offsetX = -(mazeSize.width*roadSize.width-roadSize.width)/4-roadSize.width/4;
-	var offsetY = (mazeSize.height*roadSize.height-roadSize.height)/4-roadSize.height/4;
-	character.drawn = false;
+	// Draw walls
 	for(var y=0; y<mazeSize.height; y++) {
 		for(var x=0; x<mazeSize.width; x++) {
-			// Compute coords
-			var wallX = (x+y)*roadSize.width/2+offsetX;
-			var wallY = (y-x)*roadSize.height/2+offsetY;
-			
-			// Draw character (depending depth)
-			if(!character.drawn && wallX<character.y) {
-				ctx_canvas.drawImage(characterImages[2], character.x, character.y);
-				character.drawn = true;
-			}
-
-			// Draw walls
-			ctx_canvas.drawImage(wallImages[mazePattern[y][x]], wallX, wallY);
+			drawWall(mazeContext, x, y);
 		}
 	}
+	
+	// Draw character
+	drawCharacter(characterContext, character.x, character.y);
+}
+
+function drawCharacter(characterContext, x, y) {
+	// Draw character
+	characterContext.drawImage(characterImages[2], character.x, character.y);
+}
+
+function drawWall(context, x, y) {
+	context.drawImage(wallImages[mazePattern[y][x]],
+		(x+y)*roadSize.width/2+mazeDrawingOffset.x,
+		(y-x)*roadSize.height/2+mazeDrawingOffset.y);
 }
