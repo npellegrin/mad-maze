@@ -75,7 +75,8 @@ var mazeDrawingOffset = {
 };
 
 // Character images
-var characterImageFilenames = Array("character_north.png", "character_south.png", "character_east.png", "character_west.png");
+var Orientation = { North: 0, East: 1, South: 2, West: 3 };
+var characterImageFilenames = Array("character_north.png", "character_east.png", "character_south.png", "character_west.png");
 var characterImages = Array();
 for(var i=0; i<characterImageFilenames.length; i++) {
 	characterImages[i] = new Image();
@@ -98,7 +99,8 @@ for(var i=0; i<wallImageFilenames.length; i++) {
 }
 
 // Game objects
-var character = {x:190, y:60};
+var character = {x:190, y:60, orientation:Orientation.East};
+var keyTimer = 0;
 
 $(document).ready(function() {
 	// Get environment
@@ -123,6 +125,9 @@ $(document).ready(function() {
 	
 	// Draw character !
 	drawCharacter(characterContext, character.x, character.y);
+	
+	// Main loop
+	setInterval(function(){loop(characterContext);}, 1000/30);
 });
 
 function drawMaze(mazeContext) {
@@ -136,7 +141,7 @@ function drawMaze(mazeContext) {
 
 function drawCharacter(characterContext, x, y) {
 	// Draw character at (x,y)
-	characterContext.drawImage(characterImages[2], character.x, character.y);
+	characterContext.drawImage(characterImages[character.orientation], character.x, character.y);
 }
 
 function drawWall(context, x, y) {
@@ -148,5 +153,59 @@ function drawWall(context, x, y) {
 
 function clearCharacters(context) {
 	// Clear all characters
-	context.clearRect(0,0,mazeSize.width, mazeSize.height);
+	context.clearRect(0, 0, roadSize.width*mazeSize.width/2, roadSize.height*mazeSize.height/2);
+}
+
+function loop(characterContext) {
+	// Move
+	if(keydown.left && keyTimer<=0) {
+		character.orientation = (character.orientation + 3) % 4
+		keyTimer = 10;
+	} else if(keydown.right && keyTimer<=0) {
+		character.orientation = (character.orientation + 1) % 4
+		keyTimer = 10;
+	} else if(keydown.up) {
+		if(character.orientation == Orientation.North) {
+			character.x = character.x + 5;
+			character.y = character.y - 5;
+		} else if(character.orientation == Orientation.East) {
+			character.x = character.x + 5;
+			character.y = character.y + 5;
+		} else if(character.orientation == Orientation.South) {
+			character.x = character.x - 5;
+			character.y = character.y + 5;
+		} else if(character.orientation == Orientation.West) {
+			character.x = character.x - 5;
+			character.y = character.y - 5;
+		}
+	} else if(keydown.down) {
+		if(character.orientation == Orientation.North) {
+			character.x = character.x - 5;
+			character.y = character.y + 5;
+		} else if(character.orientation == Orientation.East) {
+			character.x = character.x - 5;
+			character.y = character.y - 5;
+		} else if(character.orientation == Orientation.South) {
+			character.x = character.x + 5;
+			character.y = character.y - 5;
+		} else if(character.orientation == Orientation.West) {
+			character.x = character.x + 5;
+			character.y = character.y + 5;
+		}
+	}
+
+	
+	// Reset key timer for hard-gamers
+	if(!keydown.right && !keydown.left) {
+		keyTimer = 0;
+	}
+	
+	// Update canvas
+	clearCharacters(characterContext);
+	drawCharacter(characterContext, character.x, character.y);
+	
+	// Update key timer
+	if(keyTimer>0) {
+		keyTimer--;
+	}
 }
