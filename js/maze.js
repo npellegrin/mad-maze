@@ -101,47 +101,52 @@ for(var i=0; i<wallImageFilenames.length; i++) {
 var character = {x:190, y:60};
 
 $(document).ready(function() {
-	// Set canvas size (depending road size and maze size)
+	// Get environment
 	var mazeCanvas = document.getElementById("maze");
+	var characterCanvas = document.getElementById("character");
+	
+	// Set canvas size (depending road size and maze size)
 	mazeCanvas.setAttribute("width", roadSize.width*mazeSize.width/2);
 	mazeCanvas.setAttribute("height", roadSize.height*mazeSize.height/2);
 	mazeCanvas.style.marginLeft = (-mazeCanvas.width/2)+"px";
 
-	var characterCanvas = document.getElementById("character");
 	characterCanvas.setAttribute("width", mazeCanvas.width);
 	characterCanvas.setAttribute("height", mazeCanvas.height);
 	characterCanvas.style.marginLeft = (-mazeCanvas.width/2)+"px";
+
+	// Get contexts
+	var mazeContext = mazeCanvas.getContext("2d");
+	var characterContext = characterCanvas.getContext("2d");
 	
 	// Draw maze !
-	drawMaze();
+	drawMaze(mazeContext);
+	
+	// Draw character !
+	drawCharacter(characterContext, character.x, character.y);
 });
 
-function drawMaze () {
-	// Get environment
-	var mazeCanvas = document.getElementById("maze");
-	var mazeContext = mazeCanvas.getContext("2d");
-	
-	var characterCanvas = document.getElementById("character");
-	var characterContext = characterCanvas.getContext("2d");
-
+function drawMaze(mazeContext) {
 	// Draw walls
 	for(var y=0; y<mazeSize.height; y++) {
 		for(var x=0; x<mazeSize.width; x++) {
 			drawWall(mazeContext, x, y);
 		}
 	}
-	
-	// Draw character
-	drawCharacter(characterContext, character.x, character.y);
 }
 
 function drawCharacter(characterContext, x, y) {
-	// Draw character
+	// Draw character at (x,y)
 	characterContext.drawImage(characterImages[2], character.x, character.y);
 }
 
 function drawWall(context, x, y) {
+	// draw Wall (x,y)
 	context.drawImage(wallImages[mazePattern[y][x]],
 		(x+y)*roadSize.width/2+mazeDrawingOffset.x,
 		(y-x)*roadSize.height/2+mazeDrawingOffset.y);
+}
+
+function clearCharacters(context) {
+	// Clear all characters
+	context.clearRect(0,0,mazeSize.width, mazeSize.height);
 }
