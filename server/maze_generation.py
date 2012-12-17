@@ -156,52 +156,103 @@ for y in range(0, mazeHeight+1):
 				mazePattern[x][y] = i
 				break
 
+# Show visual maze
+print "- Visual maze -"
+for y in range(0, mazeHeight):
+	# Display top walls
+	for x in range(0, mazeWidth):
+		# Junction between left wall and top wall: always a X
+		sys.stdout.write("XX")
+		# Top wall
+		if maze[x][y].walls[Orientation.TOP] != None and maze[x][y].walls[Orientation.TOP].broken:
+			sys.stdout.write("  ")
+		else:
+			sys.stdout.write("XX")
+	# Junction between right wall and last top wall: always a X
+	sys.stdout.write("XX")
+	sys.stdout.write("\n")
+
+	# Display left walls
+	for x in range(0, mazeWidth):
+		# Left wall
+		if maze[x][y].walls[Orientation.LEFT] != None and maze[x][y].walls[Orientation.LEFT].broken:
+			sys.stdout.write("  ")
+		else:
+			sys.stdout.write("XX")
+		# Cell
+		sys.stdout.write("  ")
+	# Last wall of the line (on the right)
+	if maze[mazeWidth-1][y].walls[Orientation.RIGHT] != None and maze[mazeWidth-1][y].walls[Orientation.RIGHT].broken:
+		sys.stdout.write("  ")
+	else:
+		sys.stdout.write("XX")
+	sys.stdout.write("\n")
+
+# Last line (bottom walls)
+for x in range(0, mazeWidth):
+	# Junction between left wall and bottom wall: always a X
+	sys.stdout.write("XX")
+	# Bottom wall
+	if maze[x][y].walls[Orientation.BOTTOM] != None and maze[x][y].walls[Orientation.BOTTOM].broken:
+		sys.stdout.write("  ")
+	else:
+		sys.stdout.write("XX")
+
+# Junction between right wall and last bottom wall: always a X
+sys.stdout.write("XX")
+sys.stdout.write("\n")
+
 # Show Javascript code for maze data
 print "- Maze data -"
-sys.stdout.write("\t[")
-if maze[0][0].walls[Orientation.LEFT] != None and maze[x][y].walls[Orientation.LEFT].broken:
-	sys.stdout.write("0")
-else:
-	sys.stdout.write("1")
-sys.stdout.write(", ")
-for x in range(0, mazeWidth):
-	if maze[x][0].walls[Orientation.TOP] != None and maze[x][0].walls[Orientation.TOP].broken:
-		sys.stdout.write("0")
-	else:
-		sys.stdout.write("1")
-	if x<mazeWidth-1:
-		sys.stdout.write(", ")
-if y<mazeHeight-1:
-	sys.stdout.write("],\n")
-else:
-	sys.stdout.write("]\n")
 for y in range(0, mazeHeight):
-	sys.stdout.write("\t[")
-	if maze[x][y].walls[Orientation.LEFT] != None and maze[x][y].walls[Orientation.LEFT].broken:
-		sys.stdout.write("0")
-	else:
-		sys.stdout.write("1")
-	sys.stdout.write(", ")
+	# Display top walls
 	for x in range(0, mazeWidth):
-		if maze[x][y].walls[Orientation.RIGHT] != None and maze[x][y].walls[Orientation.RIGHT].broken:
-			sys.stdout.write("0")
+		# Format
+		if x == 0:
+			sys.stdout.write("\t[")
+		# Junction between left wall and top wall: always a X
+		sys.stdout.write("1, ")
+		# Top wall
+		if maze[x][y].walls[Orientation.TOP] != None and maze[x][y].walls[Orientation.TOP].broken:
+			sys.stdout.write("0, ")
 		else:
-			sys.stdout.write("1")
-		if x<mazeWidth-1:
-			sys.stdout.write(", ")
-	sys.stdout.write("],\n")
-	sys.stdout.write("\t[1, ")
+			sys.stdout.write("1, ")
+	# Junction between right wall and last top wall: always a X
+	sys.stdout.write("1],\n")
+
+	# Display left walls
 	for x in range(0, mazeWidth):
-		if maze[x][y].walls[Orientation.BOTTOM] != None and maze[x][y].walls[Orientation.BOTTOM].broken:
-			sys.stdout.write("0")
+		# Format
+		if x == 0:
+			sys.stdout.write("\t[")
+		# Left wall
+		if maze[x][y].walls[Orientation.LEFT] != None and maze[x][y].walls[Orientation.LEFT].broken:
+			sys.stdout.write("0, ")
 		else:
-			sys.stdout.write("1")
-		if x<mazeWidth-1:
-			sys.stdout.write(", ")
-	if y<mazeHeight-1:
-		sys.stdout.write("],\n")
+			sys.stdout.write("1, ")
+		# Cell
+		sys.stdout.write("0, ")
+	# Last wall of the line (on the right)
+	if maze[mazeWidth-1][y].walls[Orientation.RIGHT] != None and maze[mazeWidth-1][y].walls[Orientation.RIGHT].broken:
+		sys.stdout.write("0],\n")
 	else:
-		sys.stdout.write("]\n")
+		sys.stdout.write("1],\n")
+
+# Last line (bottom walls)
+for x in range(0, mazeWidth):
+	# Format
+	if x == 0:
+		sys.stdout.write("\t[")
+	# Junction between left wall and bottom wall: always a X
+	sys.stdout.write("1, ")
+	# Bottom wall
+	if maze[x][y].walls[Orientation.BOTTOM] != None and maze[x][y].walls[Orientation.BOTTOM].broken:
+		sys.stdout.write("0, ")
+	else:
+		sys.stdout.write("1, ")
+
+# Junction between right wall and last bottom wall: always a X
+sys.stdout.write("1]\n")
 
 # Show Javascript code for pattern
 print "- Javascript -"
