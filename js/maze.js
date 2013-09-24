@@ -106,29 +106,48 @@ var keyTimer = 0;
  * Game entrypoint.
  * */
 $(document).ready(function() {
+	// Display loading screen
+	showLoadingScreen();
+
 	// Images loader
-	// TODO: loading screen
+	var progress = document.getElementById("progress");
 	var imageSources = new Array();
 	imagesSources = imageSources.concat(wallImageFilenames, characterImageFilenames);
-	loadImages(imagesSources, function(){startGame();});
+	loadImages(imagesSources, progress, function(){startGame();});
 });
 
 /**
  * Asserts all images in sources are loaded (or in cache).
  * */
-function loadImages(sources, callback) {
+function loadImages(sources, progressbar, callback) {
 	var images = {};
 	var loadedImages = 0;
-	var numImages = 0;
 	for(var src in sources) {
 		images[src] = new Image();
 		images[src].onload = function() {
+			progress.innerHTML = Math.floor(100*loadedImages/sources.length) + " %";
 			if(++loadedImages >= sources.length) {
 				callback(images);
 			}
 		};
 		images[src].src = "img/"+sources[src];
 	}
+}
+
+/**
+ * Show loading screen.
+ * */
+function showLoadingScreen() {
+	var screen = document.getElementById("loader");
+	screen.style.display = "block";
+}
+
+/**
+ * Hide loading screen.
+ * */
+function hideLoadingScreen() {
+	var screen = document.getElementById("loader");
+	screen.style.display = "none";
 }
 
 /**
@@ -151,6 +170,9 @@ function startGame() {
 	// Get contexts
 	var mazeContext = mazeCanvas.getContext("2d");
 	var characterContext = characterCanvas.getContext("2d");
+
+	// Hide loader
+	hideLoadingScreen();
 
 	// Draw maze !
 	drawMaze(mazeContext);
