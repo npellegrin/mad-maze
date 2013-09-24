@@ -102,12 +102,43 @@ for(var i=0; i<wallImageFilenames.length; i++) {
 var character = {x:19, y:19, orientation:Orientation.East, speed:0.2};	// Character's position is relative to mazeData array (simpler for collisions)
 var keyTimer = 0;
 
-// Init
+/**
+ * Game entrypoint.
+ * */
 $(document).ready(function() {
+	// Images loader
+	// TODO: loading screen
+	var imageSources = new Array();
+	imagesSources = imageSources.concat(wallImageFilenames, characterImageFilenames);
+	loadImages(imagesSources, function(){startGame();});
+});
+
+/**
+ * Asserts all images in sources are loaded (or in cache).
+ * */
+function loadImages(sources, callback) {
+	var images = {};
+	var loadedImages = 0;
+	var numImages = 0;
+	for(var src in sources) {
+		images[src] = new Image();
+		images[src].onload = function() {
+			if(++loadedImages >= sources.length) {
+				callback(images);
+			}
+		};
+		images[src].src = "img/"+sources[src];
+	}
+}
+
+/**
+ * Callback when all game images are up.
+ * */
+function startGame() {
 	// Get environment
 	var mazeCanvas = document.getElementById("maze");
 	var characterCanvas = document.getElementById("character");
-	
+
 	// Set canvas size (depending road size and maze size)
 	mazeCanvas.setAttribute("width", roadSize.width*mazeSize.width/2);
 	mazeCanvas.setAttribute("height", roadSize.height*mazeSize.height/2);
@@ -120,17 +151,20 @@ $(document).ready(function() {
 	// Get contexts
 	var mazeContext = mazeCanvas.getContext("2d");
 	var characterContext = characterCanvas.getContext("2d");
-	
+
 	// Draw maze !
 	drawMaze(mazeContext);
-	
+
 	// Draw character !
 	drawCharacter(characterContext, character.x, character.y);
-	
+
 	// Main loop
 	setInterval(function(){loop(characterContext);}, 1000/30);
-});
+}
 
+/**
+ * Draw maze in the specified context.
+ * */
 function drawMaze(mazeContext) {
 	// Draw walls
 	for(var y=0; y<mazeSize.height; y++) {
@@ -140,6 +174,9 @@ function drawMaze(mazeContext) {
 	}
 }
 
+/**
+ * Draw the character in the specified context, to the coords x, y.
+ * */
 function drawCharacter(characterContext, x, y) {
 	// Draw character at (x,y)
 	characterContext.drawImage(characterImages[character.orientation],
@@ -147,6 +184,9 @@ function drawCharacter(characterContext, x, y) {
 		Math.floor((y/2-x/2)*roadSize.height/2+mazeDrawingOffset.y));
 }
 
+/**
+ * Draw a wall.
+ * */
 function drawWall(context, x, y) {
 	// draw Wall (x,y)
 	context.drawImage(wallImages[mazePattern[y][x]],
@@ -154,15 +194,21 @@ function drawWall(context, x, y) {
 		Math.floor((y-x)*roadSize.height/2+mazeDrawingOffset.y));
 }
 
+/**
+ * Remove all in the specified context.
+ * */
 function clearCharacters(context) {
 	// Clear all characters
 	context.clearRect(0, 0, roadSize.width*mazeSize.width/2, roadSize.height*mazeSize.height/2);
 }
 
+/**
+ * Main loop.
+ * */
 function loop(characterContext) {
 	// Save old values
 	oldPosition = { x:character.x, y:character.y };
-	
+
 	// Move
 	if(keydown.left && keyTimer<=0) {
 		character.orientation = (character.orientation + 3) % 4
@@ -198,16 +244,16 @@ function loop(characterContext) {
 		character.y = oldPosition.y
 		console.log("hit !");
 	}
-	
+
 	// Reset key timer for hard-gamers
 	if(!keydown.right && !keydown.left) {
 		keyTimer = 0;
 	}
-	
+
 	// Update canvas
 	clearCharacters(characterContext);
 	drawCharacter(characterContext, character.x, character.y);
-	
+
 	// Update key timer
 	if(keyTimer>0) {
 		keyTimer--;
